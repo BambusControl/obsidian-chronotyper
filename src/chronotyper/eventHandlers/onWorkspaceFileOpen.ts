@@ -3,17 +3,11 @@ import {EditSession} from "../editSession";
 import {ChronotyperError} from "../errors/chronotyperError";
 
 const FM_UPDATED = 'updated';
-const FM_VIEW_TIME = 'viewed_seconds';
 const FM_EDIT_TIME = 'edited_seconds';
 
-export function onWorkspaceFileOpen(app: App, session: EditSession): (newFile: (TFile | null)) => void {
-    return (newFile: TFile | null) => {
+export function onWorkspaceFileOpen(app: App, session: EditSession): (newFile: (TFile | null)) => Promise<void> {
+    return async (newFile: TFile | null) => {
         if (session.filepath != null) {
-            const viewDuration = moment.duration(
-                Date.now() - session.viewStartTime,
-                'milliseconds'
-            );
-
             const file = app.vault.getFileByPath(session.filepath);
 
             if (file == null) {
@@ -23,15 +17,9 @@ export function onWorkspaceFileOpen(app: App, session: EditSession): (newFile: (
             const closedSession = {...session} // Because of the callback
             console.log("Closing file", session.filepath, "with", closedSession);
 
-            app.fileManager.processFrontMatter(file, (frontmatter) => {
-
-                /* Temporarily disabled */
-                /*frontmatter[FM_VIEW_TIME] = Math.floor(
-                    (frontmatter[FM_VIEW_TIME] ?? 0) + viewDuration.asSeconds()
-                );*/
-
-                // Update edit time if there was any editing
-                if (closedSession.totalEditTime > 0) {
+            // Update edit time if there was any editing
+            if (closedSession.totalEditTime > 0) {
+                await app.fileManager.processFrontMatter(file, (frontmatter) => {
                     frontmatter[FM_UPDATED] = moment().toISOString(true);
 
                     const addedEditTime = closedSession.totalEditTime / 1000;
@@ -39,8 +27,8 @@ export function onWorkspaceFileOpen(app: App, session: EditSession): (newFile: (
                         (frontmatter[FM_EDIT_TIME] ?? 0) +
                         addedEditTime
                     );
-                }
-            });
+                });
+            }
         }
 
         if (newFile == null) {
