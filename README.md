@@ -7,3 +7,11 @@
 Track the total time of your edits directly inside your notes.
 
 > *This is a plugin for [Obsidian: chronotyper](https://obsidian.md/plugins?id=chronotyper)*.
+
+The plugin automatically tracks the time you spend editing a note.
+It will automatically save the total edit time, and the notification time in the notes properties:
+
+```yaml
+updated: 2024-12-28T19:14:33.599+01:00
+edited_seconds: 8
+```

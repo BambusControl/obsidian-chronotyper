@@ -1,12 +1,12 @@
 {
   "name": "obsidian-chronotyper",
-  "version": "0.1.0-NEXT",
+  "version": "0.1.0",
   "description": "Obsidian plugin for tracking note edit time.",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-    "export-schema": "typescript-json-schema --required --strictNullChecks --validationKeywords --ignoreErrors --refs --id https://raw.githubusercontent.com/BambusControl/obsidian-chronotyper/0.1.0-NEXT/resources/save-data-schema.json --out ./resources/save-data-schema.json tsconfig.json SaveData"
+    "export-schema": "typescript-json-schema --required --strictNullChecks --validationKeywords --ignoreErrors --refs --id https://raw.githubusercontent.com/BambusControl/obsidian-chronotyper/0.1.0/resources/save-data-schema.json --out ./resources/save-data-schema.json tsconfig.json SaveData"
   },
   "keywords": [
     "obsidian"
