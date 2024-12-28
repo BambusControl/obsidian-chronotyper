@@ -1,10 +1,12 @@
-import {App, debounce, moment, Plugin, PluginManifest, TFile} from "obsidian";
+import {App, moment, Plugin, PluginManifest, TFile} from "obsidian";
+import {throttle} from "rxjs";
+import {ChronotyperError} from "./errors/chronotyperError";
 
 /* Used by Obsidian */
 // noinspection JSUnusedGlobalSymbols
 export default class Chronotyper extends Plugin {
     private editSession: EditSession = {
-        file: null,
+        filepath: null,
         viewStartTime: 0,
         lastEditTime: null,
         totalEditTime: 0
@@ -18,44 +20,34 @@ export default class Chronotyper extends Plugin {
         console.group("Loading Chronotyper plugin");
         console.time("Chronotyper load time");
 
-        /* Modification tells us when it has been saved... */
-        this.registerEvent(this.app.vault.on('modify', (file) => {
-            console.log(`File ${file.path} modified`);
-        }))
-        /* Error when file deleted */
-        this.registerEvent(this.app.vault.on('delete', (file) => {
-            console.log(`File ${file.path} del`);
-        }))
-        this.registerEvent(this.app.vault.on('rename', (file) => {
-            console.log(`File ${file.path} tn`);
-        }))
-        this.registerEvent(this.app.workspace.on('file-open', (file) => {
-            console.log(`File ==> ${file?.path}`);
-        }))
-
-        // Track file open/close events
         this.registerEvent(
             this.app.workspace.on('file-open', (newFile) => {
-                const hadOpenFile = this.editSession.file != null;
+                const session = this.editSession;
 
-                // Handle file closing or switching
-                if (hadOpenFile) {
+                if (session.filepath != null) {
                     const viewDuration = moment.duration(
-                        Date.now() - this.editSession.viewStartTime,
+                        Date.now() - session.viewStartTime,
                         'milliseconds'
                     );
 
-                    // Update both view and edit times in frontmatter
-                    const es = {...this.editSession} // Because of the callback
-                    this.app.fileManager.processFrontMatter(es.file!, (frontmatter) => {
+                    const file = this.app.vault.getFileByPath(session.filepath);
+
+                    if (file == null) {
+                        throw new ChronotyperError(`File ${session.filepath} not found`)
+                    }
+
+                    const closedSession = {...session} // Because of the callback
+                    console.log("Closing file", session.filepath, "with", closedSession);
+
+                    this.app.fileManager.processFrontMatter(file, (frontmatter) => {
                         // Update view time
                         frontmatter['viewTime'] = Math.floor(
                             (frontmatter['viewTime'] ?? 0) + viewDuration.asSeconds()
                         );
 
                         // Update edit time if there was any editing
-                        if (es.totalEditTime > 0) {
-                            const addedEditTime = es.totalEditTime / 1000;
+                        if (closedSession.totalEditTime > 0) {
+                            const addedEditTime = closedSession.totalEditTime / 1000;
                             frontmatter['editTime'] = Math.floor(
                                 (frontmatter['editTime'] ?? 0) +
                                 addedEditTime // Convert ms to seconds
@@ -66,38 +58,60 @@ export default class Chronotyper extends Plugin {
 
                 if (newFile == null) {
                     /* File closed */
-                    this.editSession.file = null;
-                    this.editSession.viewStartTime = 0;
+                    session.filepath = null;
+                    session.viewStartTime = 0;
 
                 } else {
                     /* New file opened */
-                    this.editSession.file = newFile;
-                    this.editSession.viewStartTime = Date.now();
+                    session.filepath = newFile.path;
+                    session.viewStartTime = Date.now();
                 }
 
                 /* Reset parameters */
-                this.editSession.lastEditTime = null;
-                this.editSession.totalEditTime = 0;
+                session.lastEditTime = null;
+                session.totalEditTime = 0;
 
             })
         );
 
-        // Track editing events
         this.registerEvent(
             this.app.workspace.on('editor-change', () => {
-                if (this.editSession.file == null) {
+                const session = this.editSession;
+                if (session.filepath == null) {
                     return
                 }
 
                 const now = Date.now();
-                const typingTime = now - (this.editSession.lastEditTime ?? now);
+                const typingTime = now - (session.lastEditTime ?? now);
 
                 // Only register typing which is of a certain speed
                 if (typingTime < 1000) {
-                    this.editSession.totalEditTime += typingTime;
+                    session.totalEditTime += typingTime;
                 }
 
-                this.editSession.lastEditTime = now;
+                session.lastEditTime = now;
+            })
+        );
+
+        this.registerEvent(
+            this.app.vault.on('delete', (deletedFile) => {
+                const session = this.editSession;
+
+                if (session.filepath === deletedFile.path) {
+                    session.filepath = null;
+                    console.log("Deleting file", deletedFile.path);
+                }
+            })
+        );
+
+        this.registerEvent(
+            this.app.vault.on('rename', (newFile, oldPath) => {
+                const session = this.editSession;
+
+                if (session.filepath === oldPath) {
+                    session.filepath = newFile.path;
+                    console.log("Renaming file", oldPath, "to", newFile.path);
+                }
             })
         );
 
@@ -107,7 +121,7 @@ export default class Chronotyper extends Plugin {
 }
 
 interface EditSession {
-    file: TFile | null;
+    filepath: TFile["path"] | null;
     viewStartTime: number;
     lastEditTime: number | null;
     totalEditTime: number;
