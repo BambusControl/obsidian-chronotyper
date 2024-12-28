@@ -24,13 +24,16 @@ export function onWorkspaceFileOpen(app: App, session: EditSession): (newFile: (
             console.log("Closing file", session.filepath, "with", closedSession);
 
             app.fileManager.processFrontMatter(file, (frontmatter) => {
+
                 /* Temporarily disabled */
-                frontmatter[FM_VIEW_TIME] = Math.floor(
+                /*frontmatter[FM_VIEW_TIME] = Math.floor(
                     (frontmatter[FM_VIEW_TIME] ?? 0) + viewDuration.asSeconds()
-                );
+                );*/
 
                 // Update edit time if there was any editing
                 if (closedSession.totalEditTime > 0) {
+                    frontmatter[FM_UPDATED] = moment().toISOString(true);
+
                     const addedEditTime = closedSession.totalEditTime / 1000;
                     frontmatter[FM_EDIT_TIME] = Math.floor(
                         (frontmatter[FM_EDIT_TIME] ?? 0) +
