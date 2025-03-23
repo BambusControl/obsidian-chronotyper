@@ -9,8 +9,8 @@ export function onWorkspaceEditorChange(session: EditSession): () => void {
         const now = Date.now();
         const typingTime = now - (session.lastEditTime ?? now);
 
-        // Only register typing which is of a certain speed
-        if (typingTime < 1000) {
+        // Only register typing with gaps of 5 seconds between keystrokes
+        if (typingTime < 5000) {
             session.totalEditTime += typingTime;
         }
 
