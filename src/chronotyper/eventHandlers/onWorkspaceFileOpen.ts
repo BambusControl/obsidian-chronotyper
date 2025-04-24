@@ -1,7 +1,7 @@
 import { App, moment, TFile } from "obsidian";
-import { EditSession } from "../editSession";
+import { EditSession } from "../core/editSession";
 import { ChronotyperError } from "../errors/chronotyperError";
-import { CriterionStorage } from "../criterionStorage";
+import { CriterionStorage } from "../storage/criterionStorage";
 
 const FM_UPDATED = 'updated';
 const FM_EDIT_TIME = 'edited_seconds';

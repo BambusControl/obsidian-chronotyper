@@ -1,5 +1,5 @@
 import {RootDataStore} from "./rootDataStore";
-import {Exclusion} from "./criterionFragment";
+import {Exclusion} from "../data/criterionFragment";
 
 export class CriterionStorage {
 

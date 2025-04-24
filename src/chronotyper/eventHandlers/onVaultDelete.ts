@@ -1,4 +1,4 @@
-import {EditSession} from "../editSession";
+import {EditSession} from "../core/editSession";
 import {TAbstractFile} from "obsidian";
 
 export function onVaultDelete(session: EditSession): (deletedFile: TAbstractFile) => void {

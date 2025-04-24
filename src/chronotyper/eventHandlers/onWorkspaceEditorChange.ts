@@ -1,4 +1,4 @@
-import {EditSession} from "../editSession";
+import {EditSession} from "../core/editSession";
 
 export function onWorkspaceEditorChange(session: EditSession): () => void {
     return () => {

@@ -1,8 +1,8 @@
 import { RootDataStore } from "./rootDataStore";
 import {PersistCache} from "./persistCache";
-import {SaveData} from "./saveData";
-import { MetaFragment } from "./metaFragment";
-import {CriterionFragment} from "./criterionFragment";
+import {SaveData} from "../data/saveData";
+import { MetaFragment } from "../data/metaFragment";
+import {CriterionFragment} from "../data/criterionFragment";
 
 export class RootPluginDataStorage implements RootDataStore {
 

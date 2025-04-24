@@ -1,5 +1,5 @@
 import {App, ButtonComponent, debounce, Plugin, PluginSettingTab, Setting} from "obsidian";
-import {CriterionStorage} from "./criterionStorage";
+import {CriterionStorage} from "../storage/criterionStorage";
 
 export class SettingsTab extends PluginSettingTab {
     private rendered = false;

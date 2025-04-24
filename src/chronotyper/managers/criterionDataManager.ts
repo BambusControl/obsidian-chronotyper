@@ -1,7 +1,7 @@
-import {DataFragment} from "./dataFragment";
-import {CriterionFragment} from "./criterionFragment";
+import {DataFragment} from "../data/dataFragment";
+import {CriterionFragment} from "../data/criterionFragment";
 import {DataFragmentManager} from "./dataFragmentManager";
-import {DataEvent} from "./metaFragment";
+import {DataEvent} from "../data/metaFragment";
 
 export class CriterionDataManager implements DataFragmentManager<CriterionFragment> {
     initData(fragment: DataFragment): CriterionFragment {

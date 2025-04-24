@@ -1,7 +1,7 @@
-import {DataEvent, isDataEvent, MetaFragment} from "./metaFragment";
-import {DataFragment} from "./dataFragment";
+import {DataEvent, isDataEvent, MetaFragment} from "../data/metaFragment";
+import {DataFragment} from "../data/dataFragment";
 import {DataFragmentManager} from "./dataFragmentManager";
-import {CURRENT_PLUGIN_VERSION} from "./version";
+import {CURRENT_PLUGIN_VERSION} from "../core/version";
 
 export class MetaDataManager implements DataFragmentManager<MetaFragment> {
     initData(fragment: DataFragment): MetaFragment {
@@ -33,4 +33,3 @@ function isMetaFragment(fragment: DataFragment): fragment is MetaFragment {
         && fragment.events.every(e => isDataEvent(e))
         ;
 }
-

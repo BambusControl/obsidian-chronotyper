@@ -1,11 +1,11 @@
-import {DataFragment, isTypeDataFragment} from "./dataFragment";
-import {SaveData, SaveDataOf} from "./saveData";
-import {MetaFragment} from "./metaFragment";
-import {PersistCache} from "./persistCache";
+import {DataFragment, isTypeDataFragment} from "../data/dataFragment";
+import {SaveData, SaveDataOf} from "../data/saveData";
+import {MetaFragment} from "../data/metaFragment";
+import {PersistCache} from "../storage/persistCache";
 import {DataManager} from "./dataManager";
 import {MetaDataManager} from "./metaDataManager";
 import {CriterionDataManager} from "./criterionDataManager";
-import {CURRENT_DATA_VERSION} from "./version";
+import {CURRENT_DATA_VERSION} from "../core/version";
 
 type MetaSaveDataFragments = Omit<SaveDataOf<DataFragment>, "meta"> & { meta: MetaFragment };
 

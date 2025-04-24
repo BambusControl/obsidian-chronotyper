@@ -1,4 +1,4 @@
-import {ChronotyperError} from "./errors/chronotyperError";
+import {ChronotyperError} from "../errors/chronotyperError";
 
 export class PersistCache<T> {
     private value?: T;

@@ -1,5 +1,5 @@
-import {MetaFragment} from "./metaFragment";
-import {CriterionFragment} from "./criterionFragment";
+import {MetaFragment} from "../data/metaFragment";
+import {CriterionFragment} from "../data/criterionFragment";
 
 export interface RootDataStore {
     getMeta(): Promise<MetaFragment>

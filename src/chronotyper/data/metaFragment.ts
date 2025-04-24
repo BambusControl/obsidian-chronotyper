@@ -1,5 +1,5 @@
 import {DataFragment} from "./dataFragment";
-import { PluginVersion } from "./version";
+import { PluginVersion } from "../core/version";
 
 /**
  * Meta information for the datastore

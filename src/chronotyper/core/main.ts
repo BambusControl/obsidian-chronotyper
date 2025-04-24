@@ -1,17 +1,17 @@
 import {App, Events, Plugin, PluginManifest} from "obsidian";
 import {EditSession} from "./editSession";
-import {onWorkspaceFileOpen} from "./eventHandlers/onWorkspaceFileOpen";
-import {onVaultRename} from "./eventHandlers/onVaultRename";
-import {onVaultDelete} from "./eventHandlers/onVaultDelete";
-import {onWorkspaceEditorChange} from "./eventHandlers/onWorkspaceEditorChange";
+import {onWorkspaceFileOpen} from "../eventHandlers/onWorkspaceFileOpen";
+import {onVaultRename} from "../eventHandlers/onVaultRename";
+import {onVaultDelete} from "../eventHandlers/onVaultDelete";
+import {onWorkspaceEditorChange} from "../eventHandlers/onWorkspaceEditorChange";
 import {SettingsTab} from "./settingsTab";
-import {PersistCache} from "./persistCache";
-import {MetaDataManager} from "./metaDataManager";
-import {CriterionDataManager} from "./criterionDataManager";
-import {RootDataManager} from "./rootDataManager";
-import {RootPluginDataStorage} from "./rootPluginDataStorage";
-import {MetaStorage} from "./metaStorage";
-import {CriterionStorage} from "./criterionStorage";
+import {PersistCache} from "../storage/persistCache";
+import {MetaDataManager} from "../managers/metaDataManager";
+import {CriterionDataManager} from "../managers/criterionDataManager";
+import {RootDataManager} from "../managers/rootDataManager";
+import {RootPluginDataStorage} from "../storage/rootPluginDataStorage";
+import {MetaStorage} from "../storage/metaStorage";
+import {CriterionStorage} from "../storage/criterionStorage";
 
 /* Used by Obsidian */
 // noinspection JSUnusedGlobalSymbols

@@ -1,5 +1,5 @@
-import {DataFragment} from "./dataFragment";
-import {DataEvent} from "./metaFragment";
+import {DataFragment} from "../data/dataFragment";
+import {DataEvent} from "../data/metaFragment";
 
 /**
  * Manages the lifecycle of a structured data segment, typically stored as JSON.
