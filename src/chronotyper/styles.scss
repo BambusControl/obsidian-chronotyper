@@ -1,0 +1,31 @@
+.plugin.chronotyper.setting-tab {
+  .excluded-paths-list {
+    margin-top: 10px;
+    margin-left: 15px;
+
+    .excluded-path-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      background-color: var(--background-secondary);
+      border-radius: 4px;
+
+      .excluded-path {
+        flex-grow: 1;
+        margin-right: 10px;
+        word-break: break-all;
+      }
+
+      .clickable-icon {
+        cursor: pointer;
+        opacity: 0.7;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}

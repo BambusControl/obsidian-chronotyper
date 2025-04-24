@@ -1,12 +1,18 @@
-import {App, moment, TFile} from "obsidian";
-import {EditSession} from "../editSession";
-import {ChronotyperError} from "../errors/chronotyperError";
+import { App, moment, TFile } from "obsidian";
+import { EditSession } from "../editSession";
+import { ChronotyperError } from "../errors/chronotyperError";
+import { CriterionStorage } from "../criterionStorage";
 
 const FM_UPDATED = 'updated';
 const FM_EDIT_TIME = 'edited_seconds';
 
-export function onWorkspaceFileOpen(app: App, session: EditSession): (newFile: (TFile | null)) => Promise<void> {
+export function onWorkspaceFileOpen(
+    app: App,
+    session: EditSession,
+    criterionStore: CriterionStorage
+): (newFile: (TFile | null)) => Promise<void> {
     return async (newFile: TFile | null) => {
+
         if (session.filepath != null) {
             const file = app.vault.getFileByPath(session.filepath);
 
@@ -14,7 +20,7 @@ export function onWorkspaceFileOpen(app: App, session: EditSession): (newFile: (
                 throw new ChronotyperError(`File ${session.filepath} not found`)
             }
 
-            const closedSession = {...session} // Because of the callback
+            const closedSession = { ...session } // Because of the callback
             console.log("Closing file", session.filepath, "with", closedSession);
 
             // Update edit time if there was any editing
@@ -37,14 +43,30 @@ export function onWorkspaceFileOpen(app: App, session: EditSession): (newFile: (
             session.viewStartTime = 0;
 
         } else {
+            const exclusions = await criterionStore.getExclusion();
+
             /* New file opened */
-            session.filepath = newFile.path;
-            session.viewStartTime = Date.now();
+            if (!isPathExcluded(newFile.path, exclusions)) {
+                session.filepath = newFile.path;
+                session.viewStartTime = Date.now();
+            } else {
+                console.log(`File '${newFile.path}' excluded`);
+            }
         }
 
-        /* Reset parameters */
+        /* Reset tracked parameters */
         session.lastEditTime = null;
         session.totalEditTime = 0;
-
     };
+
+}
+
+/**
+ * Checks if a filepath matches any exclusion pattern
+ * @param filepath The filepath to check
+ * @param exclusions Array of exclusion patterns
+ * @returns True if the filepath should be excluded, false otherwise
+ */
+function isPathExcluded(filepath: string | null, exclusions: string[]): boolean {
+    return exclusions.some((excluded) => (filepath ?? "").startsWith(excluded));
 }
