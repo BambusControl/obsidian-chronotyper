@@ -3,9 +3,6 @@ import { EditSession } from "../core/editSession";
 import { ChronotyperError } from "../errors/chronotyperError";
 import { CriterionStorage } from "../storage/criterionStorage";
 
-const FM_UPDATED = 'updated';
-const FM_EDIT_TIME = 'edited_seconds';
-
 export function onWorkspaceFileOpen(
     app: App,
     session: EditSession,
@@ -25,12 +22,16 @@ export function onWorkspaceFileOpen(
 
             // Update edit time if there was any editing
             if (closedSession.totalEditTime > 0) {
+                // Get property names from settings
+                const updatedPropertyName = await criterionStore.getUpdatedPropertyName();
+                const editTimePropertyName = await criterionStore.getEditTimePropertyName();
+                
                 await app.fileManager.processFrontMatter(file, (frontmatter) => {
-                    frontmatter[FM_UPDATED] = moment().toISOString(true);
+                    frontmatter[updatedPropertyName] = moment().toISOString(true);
 
                     const addedEditTime = closedSession.totalEditTime / 1000;
-                    frontmatter[FM_EDIT_TIME] = Math.floor(
-                        (frontmatter[FM_EDIT_TIME] ?? 0) +
+                    frontmatter[editTimePropertyName] = Math.floor(
+                        (frontmatter[editTimePropertyName] ?? 0) +
                         addedEditTime
                     );
                 });

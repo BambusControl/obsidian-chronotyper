@@ -29,6 +29,7 @@ Chronotyper tracks time spent editing notes, monitoring file activity and updati
 - Functional programming style
 - TypeScript interfaces for all data structures
 - Dependency injection via constructors
+- Don't manually create headings; use an empty Setting and a dedicated display method for headings
 
 ### Performance
 - Minimize main thread operations

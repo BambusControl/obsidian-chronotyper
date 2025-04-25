@@ -21,8 +21,8 @@ const buildOptions = {
 		js: banner,
 	},
 	entryPoints: [
-		`${sourceDir}/main.ts`,
-		`${sourceDir}/styles.scss`,
+		`${sourceDir}/core/main.ts`,
+		`${sourceDir}/styles/styles.scss`,
 	],
 	entryNames: "[name]",
 	outdir: outputDir,

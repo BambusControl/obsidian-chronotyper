@@ -1,6 +1,10 @@
 import {RootDataStore} from "./rootDataStore";
 import {Exclusion} from "../data/criterionFragment";
 
+// Default property names to maintain backward compatibility
+const DEFAULT_UPDATED_PROPERTY = 'updated';
+const DEFAULT_EDIT_TIME_PROPERTY = 'edited_seconds';
+
 export class CriterionStorage {
 
     constructor(private readonly store: RootDataStore) {
@@ -28,6 +32,34 @@ export class CriterionStorage {
         const savedData = await this.store.overwriteCriterion({
             ...originalData,
             exclude: exclusion || [],
+        });
+    }
+
+    async getUpdatedPropertyName(): Promise<string> {
+        const criterion = await this.store.getCriterion();
+        return criterion.updatedPropertyName || DEFAULT_UPDATED_PROPERTY;
+    }
+
+    async getEditTimePropertyName(): Promise<string> {
+        const criterion = await this.store.getCriterion();
+        return criterion.editTimePropertyName || DEFAULT_EDIT_TIME_PROPERTY;
+    }
+
+    async overwriteUpdatedPropertyName(propertyName: string): Promise<void> {
+        const originalData = await this.store.getCriterion();
+
+        await this.store.overwriteCriterion({
+            ...originalData,
+            updatedPropertyName: propertyName,
+        });
+    }
+
+    async overwriteEditTimePropertyName(propertyName: string): Promise<void> {
+        const originalData = await this.store.getCriterion();
+
+        await this.store.overwriteCriterion({
+            ...originalData,
+            editTimePropertyName: propertyName,
         });
     }
 }
