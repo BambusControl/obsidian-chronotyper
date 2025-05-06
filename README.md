@@ -15,3 +15,14 @@ It will automatically save the total edit time, and the modification timestamp i
 updated: 2024-12-28T19:14:33.599+01:00
 edited_seconds: 8
 ```
+
+## Features
+
+- Tracks time spent editing notes
+- Updates frontmatter with timestamps and duration
+- Runs in the background without disrupting workflow
+
+### Customization Options
+
+- **Directory Exclusion**: Exclude specific folders from time tracking in settings
+- **Custom Property Names**: Change frontmatter property names for timestamps (`updated`) and edit time (`edited_seconds`)
