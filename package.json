@@ -1,6 +1,6 @@
 {
   "name": "obsidian-chronotyper",
-  "version": "0.2.0",
+  "version": "0.2.0-NEXT",
   "description": "Obsidian plugin for tracking note edit time.",
   "main": "main.js",
   "scripts": {
