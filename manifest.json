@@ -1,7 +1,7 @@
 {
 	"id": "chronotyper",
 	"name": "Chronotyper",
-	"version": "0.2.0-NEXT",
+	"version": "2.1.0",
 	"minAppVersion": "1.8.7",
 	"description": "Track how long you edit notes directly in the note properties",
 	"author": "BambusControl",
