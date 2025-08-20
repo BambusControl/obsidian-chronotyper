@@ -1,5 +1,5 @@
-import {App, debounce, Plugin, PluginSettingTab, Setting} from "obsidian";
-import {CriterionStorage} from "../storage/criterionStorage";
+import { App, debounce, Plugin, PluginSettingTab, Setting } from "obsidian";
+import { CriterionStorage } from "../storage/criterionStorage";
 
 export class SettingsTab extends PluginSettingTab {
     private rendered = false;
@@ -18,7 +18,7 @@ export class SettingsTab extends PluginSettingTab {
             return;
         }
 
-        const {containerEl} = this;
+        const { containerEl } = this;
 
         const loadedExclusions = await this.criterionStore.getExclusion();
         const exclusions = loadedExclusions || [];
@@ -26,12 +26,14 @@ export class SettingsTab extends PluginSettingTab {
 
         const updatedPropertyName = await this.criterionStore.getUpdatedPropertyName();
         const editTimePropertyName = await this.criterionStore.getEditTimePropertyName();
-        await this.displayPropertySettings(containerEl, updatedPropertyName, editTimePropertyName);
+        const updatedEnabled = await this.criterionStore.getUpdatedPropertyEnabled();
+        const editTimeEnabled = await this.criterionStore.getEditTimePropertyEnabled();
+        await this.displayPropertySettings(containerEl, updatedPropertyName, editTimePropertyName, updatedEnabled, editTimeEnabled);
 
         this.rendered = true;
     }
 
-    private async displayPropertySettings(containerEl: HTMLElement, updatedPropertyName: string, editTimePropertyName: string): Promise<void> {
+    private async displayPropertySettings(containerEl: HTMLElement, updatedPropertyName: string, editTimePropertyName: string, updatedEnabled: boolean, editTimeEnabled: boolean): Promise<void> {
         // Add section for property name settings
         new Setting(containerEl).setHeading().setName("Property Names");
 
@@ -40,8 +42,15 @@ export class SettingsTab extends PluginSettingTab {
             .setDesc("Property name used to store the last update timestamp in frontmatter")
             .addText(text => text
                 .setValue(updatedPropertyName)
+                .setDisabled(!updatedEnabled)
                 .onChange(async (value) => {
                     await this.criterionStore.overwriteUpdatedPropertyName(value);
+                })
+            )
+            .addToggle(toggle => toggle
+                .setValue(updatedEnabled)
+                .onChange(async (value) => {
+                    await this.criterionStore.overwriteUpdatedPropertyEnabled(value);
                 })
             );
 
@@ -50,8 +59,15 @@ export class SettingsTab extends PluginSettingTab {
             .setDesc("Property name used to store the total edit time (in seconds) in frontmatter")
             .addText(text => text
                 .setValue(editTimePropertyName)
+                .setDisabled(!editTimeEnabled)
                 .onChange(async (value) => {
                     await this.criterionStore.overwriteEditTimePropertyName(value);
+                })
+            )
+            .addToggle(toggle => toggle
+                .setValue(editTimeEnabled)
+                .onChange(async (value) => {
+                    await this.criterionStore.overwriteEditTimePropertyEnabled(value);
                 })
             );
     }
@@ -94,10 +110,10 @@ export class SettingsTab extends PluginSettingTab {
                     });
             });
 
-        const excludedList = containerEl.createEl("div", {cls: "excluded-paths-list"});
+        const excludedList = containerEl.createEl("div", { cls: "excluded-paths-list" });
 
         if (exclusions.length === 0) {
-            excludedList.createEl("p", {text: "No directories are currently excluded."});
+            excludedList.createEl("p", { text: "No directories are currently excluded." });
         } else {
             for (const path of exclusions) {
                 new Setting(excludedList)

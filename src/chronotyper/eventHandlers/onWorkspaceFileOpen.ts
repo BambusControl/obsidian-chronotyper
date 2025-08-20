@@ -17,36 +17,37 @@ export function onWorkspaceFileOpen(
                 throw new ChronotyperError(`File ${session.filepath} not found`)
             }
 
-            const closedSession = { ...session } // Because of the callback
+            const closedSession = { ...session }
             console.log("Closing file", session.filepath, "with", closedSession);
 
-            // Update edit time if there was any editing
             if (closedSession.totalEditTime > 0) {
-                // Get property names from settings
                 const updatedPropertyName = await criterionStore.getUpdatedPropertyName();
                 const editTimePropertyName = await criterionStore.getEditTimePropertyName();
-                
-                await app.fileManager.processFrontMatter(file, (frontmatter) => {
-                    frontmatter[updatedPropertyName] = moment().toISOString(true);
-
-                    const addedEditTime = closedSession.totalEditTime / 1000;
-                    frontmatter[editTimePropertyName] = Math.floor(
-                        (frontmatter[editTimePropertyName] ?? 0) +
-                        addedEditTime
-                    );
-                });
+                const updatedEnabled = await criterionStore.getUpdatedPropertyEnabled();
+                const editTimeEnabled = await criterionStore.getEditTimePropertyEnabled();
+                if (updatedEnabled || editTimeEnabled) {
+                    await app.fileManager.processFrontMatter(file, (frontmatter) => {
+                        if (updatedEnabled) {
+                            frontmatter[updatedPropertyName] = moment().toISOString(true);
+                        }
+                        if (editTimeEnabled) {
+                            const addedEditTime = closedSession.totalEditTime / 1000;
+                            frontmatter[editTimePropertyName] = Math.floor(
+                                (frontmatter[editTimePropertyName] ?? 0) +
+                                addedEditTime
+                            );
+                        }
+                    });
+                }
             }
         }
 
         if (newFile == null) {
-            /* File closed */
             session.filepath = null;
             session.viewStartTime = 0;
 
         } else {
             const exclusions = await criterionStore.getExclusion();
-
-            /* New file opened */
             if (!isPathExcluded(newFile.path, exclusions)) {
                 session.filepath = newFile.path;
                 session.viewStartTime = Date.now();
@@ -55,19 +56,12 @@ export function onWorkspaceFileOpen(
             }
         }
 
-        /* Reset tracked parameters */
         session.lastEditTime = null;
         session.totalEditTime = 0;
     };
 
 }
 
-/**
- * Checks if a filepath matches any exclusion pattern
- * @param filepath The filepath to check
- * @param exclusions Array of exclusion patterns
- * @returns True if the filepath should be excluded, false otherwise
- */
 function isPathExcluded(filepath: string | null, exclusions: string[]): boolean {
     return exclusions.some((excluded) => (filepath ?? "").startsWith(excluded));
 }

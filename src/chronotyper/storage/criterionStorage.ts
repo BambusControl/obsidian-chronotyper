@@ -1,5 +1,5 @@
-import {RootDataStore} from "./rootDataStore";
-import {Exclusion} from "../data/criterionFragment";
+import { RootDataStore } from "./rootDataStore";
+import { Exclusion } from "../data/criterionFragment";
 
 // Default property names to maintain backward compatibility
 const DEFAULT_UPDATED_PROPERTY = 'updated';
@@ -60,6 +60,34 @@ export class CriterionStorage {
         await this.store.overwriteCriterion({
             ...originalData,
             editTimePropertyName: propertyName,
+        });
+    }
+
+    async getUpdatedPropertyEnabled(): Promise<boolean> {
+        const criterion = await this.store.getCriterion();
+        return criterion.updatedPropertyEnabled ?? true; // Default to enabled for backward compatibility
+    }
+
+    async getEditTimePropertyEnabled(): Promise<boolean> {
+        const criterion = await this.store.getCriterion();
+        return criterion.editTimePropertyEnabled ?? true; // Default to enabled for backward compatibility
+    }
+
+    async overwriteUpdatedPropertyEnabled(enabled: boolean): Promise<void> {
+        const originalData = await this.store.getCriterion();
+
+        await this.store.overwriteCriterion({
+            ...originalData,
+            updatedPropertyEnabled: enabled,
+        });
+    }
+
+    async overwriteEditTimePropertyEnabled(enabled: boolean): Promise<void> {
+        const originalData = await this.store.getCriterion();
+
+        await this.store.overwriteCriterion({
+            ...originalData,
+            editTimePropertyEnabled: enabled,
         });
     }
 }
