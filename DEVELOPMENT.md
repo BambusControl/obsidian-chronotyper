@@ -11,7 +11,7 @@ These are my notes on the development of the plugin.
 5. ~~Run tests: `npm run test`~~
 6. Run build and test out the app: `npm run build`
 7. Commit as "Version `X.Y.Z`"
-8. Push, and fix if build fails, otherwise merge to the `main` branch
+8. Push, and fix if build fails, otherwise merge to the `develop` branch
 9. Create a tag with the label `X.Y.Z`
 10. GitHub Actions will create a [release](https://github.com/BambusControl/obsidian-chronotyper/releases)
 11. Add release notes to the release
