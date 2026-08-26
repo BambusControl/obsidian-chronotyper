@@ -1,4 +1,12 @@
-import { App, debounce, Plugin, PluginSettingTab, Setting } from "obsidian";
+import {
+    App,
+    debounce,
+    Plugin,
+    PluginSettingTab,
+    requireApiVersion,
+    Setting,
+    type SettingDefinitionItem
+} from "obsidian";
 import { CriterionStorage } from "../storage/criterionStorage";
 
 export class SettingsTab extends PluginSettingTab {
@@ -11,6 +19,169 @@ export class SettingsTab extends PluginSettingTab {
     ) {
         super(app, plugin);
         this.containerEl.addClass("plugin", "chronotyper", "setting-tab");
+    }
+
+    override getSettingDefinitions(): SettingDefinitionItem[] {
+        if (!requireApiVersion("1.13.0")) return [];
+
+        return [
+            {
+                name: "Excluded directories",
+                desc:
+                    "Exclude directories from having their edit time tracked. " +
+                    "The plugin will leave files within these directories alone.",
+                render: setting => {
+                    setting.setHeading();
+                }
+            },
+            {
+                name: "Add a directory exclusion",
+                render: setting => {
+                    let currentInput = "";
+
+                    setting
+                        .addSearch(search => {
+                            search.setPlaceholder("Enter directory path to exclude");
+                            search.onChange(debounce(value => {
+                                currentInput = value;
+                                const folder = this.app.vault.getFolderByPath(value);
+                                search.inputEl.style.color = folder == null ? "" : "green";
+                            }));
+                        })
+                        .addButton(button => {
+                            button
+                                .setButtonText("Add")
+                                .setCta()
+                                .onClick(async () => {
+                                    const exclusions = await this.criterionStore.getExclusion() || [];
+                                    if (currentInput && !exclusions.includes(currentInput)) {
+                                        const folder = this.app.vault.getFolderByPath(currentInput);
+                                        if (folder) {
+                                            await this.criterionStore.overwriteExclusion([
+                                                ...exclusions,
+                                                folder.path
+                                            ]);
+                                            this.update();
+                                        }
+                                    }
+                                });
+                        });
+                }
+            },
+            {
+                name: "Current directory exclusions",
+                searchable: false,
+                render: setting => {
+                    let disposed = false;
+                    setting.settingEl.empty();
+                    const excludedList = setting.settingEl.createEl("div", {
+                        cls: "excluded-paths-list"
+                    });
+
+                    void this.criterionStore.getExclusion().then(loadedExclusions => {
+                        if (disposed) return;
+                        const exclusions = loadedExclusions || [];
+
+                        if (exclusions.length === 0) {
+                            excludedList.createEl("p", {
+                                text: "No directories are currently excluded."
+                            });
+                            return;
+                        }
+
+                        for (const path of exclusions) {
+                            new Setting(excludedList)
+                                .setName(path)
+                                .addExtraButton(button => {
+                                    button
+                                        .setIcon("trash")
+                                        .setTooltip("Remove")
+                                        .onClick(async () => {
+                                            await this.criterionStore.overwriteExclusion(
+                                                exclusions.filter(candidate => candidate !== path)
+                                            );
+                                            this.update();
+                                        });
+                                });
+                        }
+                    });
+
+                    return () => {
+                        disposed = true;
+                    };
+                }
+            },
+            {
+                name: "Property names",
+                render: setting => {
+                    setting.setHeading();
+                }
+            },
+            {
+                name: "Updated timestamp property",
+                desc: "Property name used to store the last update timestamp in frontmatter",
+                render: setting => {
+                    let disposed = false;
+                    void Promise.all([
+                        this.criterionStore.getUpdatedPropertyName(),
+                        this.criterionStore.getUpdatedPropertyEnabled()
+                    ]).then(([propertyName, enabled]) => {
+                        if (disposed) return;
+                        setting
+                            .addText(text => text
+                                .setValue(propertyName)
+                                .setDisabled(!enabled)
+                                .onChange(async value => {
+                                    await this.criterionStore.overwriteUpdatedPropertyName(value);
+                                })
+                            )
+                            .addToggle(toggle => toggle
+                                .setValue(enabled)
+                                .onChange(async value => {
+                                    await this.criterionStore.overwriteUpdatedPropertyEnabled(value);
+                                    this.update();
+                                })
+                            );
+                    });
+
+                    return () => {
+                        disposed = true;
+                    };
+                }
+            },
+            {
+                name: "Edit time property",
+                desc: "Property name used to store the total edit time (in seconds) in frontmatter",
+                render: setting => {
+                    let disposed = false;
+                    void Promise.all([
+                        this.criterionStore.getEditTimePropertyName(),
+                        this.criterionStore.getEditTimePropertyEnabled()
+                    ]).then(([propertyName, enabled]) => {
+                        if (disposed) return;
+                        setting
+                            .addText(text => text
+                                .setValue(propertyName)
+                                .setDisabled(!enabled)
+                                .onChange(async value => {
+                                    await this.criterionStore.overwriteEditTimePropertyName(value);
+                                })
+                            )
+                            .addToggle(toggle => toggle
+                                .setValue(enabled)
+                                .onChange(async value => {
+                                    await this.criterionStore.overwriteEditTimePropertyEnabled(value);
+                                    this.update();
+                                })
+                            );
+                    });
+
+                    return () => {
+                        disposed = true;
+                    };
+                }
+            }
+        ];
     }
 
     override async display(): Promise<void> {
